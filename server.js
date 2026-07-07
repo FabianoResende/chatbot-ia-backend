@@ -7,7 +7,7 @@ dotenv.config();
 
 const app = express();
 app.use(express.json());
-app.use(cors());
+app.use(cors()); // habilita CORS para o frontend
 
 const GROQ_API_KEY = process.env.GROQ_API_KEY;
 
@@ -35,11 +35,9 @@ app.post("/chat", async (req, res) => {
         "Authorization": `Bearer ${GROQ_API_KEY}`,
       },
       body: JSON.stringify({
-        model: "llama3-8b-8192",
-        messages: [
-          { role: "user", content: prompt }
-        ]
-      })
+        model: "llama-3.1-8b-instant",
+        messages: [{ role: "user", content: prompt }],
+      }),
     });
 
     if (!response.ok) {
@@ -50,10 +48,10 @@ app.post("/chat", async (req, res) => {
     const data = await response.json();
 
     const answer =
-      data?.choices?.[0]?.message?.content ||
+      data.choices?.[0]?.message?.content ||
       "No momento não consegui gerar uma resposta. Tente reformular sua pergunta.";
 
-    return res.json({ answer });
+    return res.status(200).json({ answer });
   } catch (error) {
     console.error("Erro na chamada:", error);
     return res.status(500).json({ error: "Erro ao conectar com a IA." });
@@ -63,5 +61,5 @@ app.post("/chat", async (req, res) => {
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
-  console.log(`Backend do chatbot rodando com GROQ na porta ${PORT}`);
+  console.log(`Backend do chatbot rodando com Groq na porta ${PORT}`);
 });
